@@ -4,16 +4,16 @@
  *  Doubly Linked List
  *
  *  Data Structures
- *  Department of Computer Science 
+ *  Department of Computer Science
  *  at Chungbuk National University
  *
  */
 
-
+#define _CRT_SECURE_NO_WARNINGS
 
 #include<stdio.h>
 #include<stdlib.h>
-/* 필요한 헤더파일 추가 if necessary */
+ /* 필요한 헤더파일 추가 if necessary */
 
 
 typedef struct Node {
@@ -31,12 +31,12 @@ typedef struct Head {
 /* 함수 리스트 */
 
 /* note: initialize는 이중포인터를 매개변수로 받음
-         singly-linked-list의 initialize와 차이점을 이해 할것 */
+		 singly-linked-list의 initialize와 차이점을 이해 할것 */
 int initialize(headNode** h); // 노드를 초기화하는 함수
 
 /* note: freeList는 싱글포인터를 매개변수로 받음
-        - initialize와 왜 다른지 이해 할것
-        - 이중포인터를 매개변수로 받아도 해제할 수 있을 것 */
+		- initialize와 왜 다른지 이해 할것
+		- 이중포인터를 매개변수로 받아도 해제할 수 있을 것 */
 
 int freeList(headNode* h); // 노드의 값을 지우고 할당한 메모리를 회수하는 함수
 
@@ -55,11 +55,11 @@ int main()
 {
 	char command; // 사용자의 메뉴 선택값을 저장하는 변수 선언
 	int key; // 특정 노드의 value 값을 임시로 저장할 변수 선언
-	headNode* headnode=NULL;
+	headNode* headnode = NULL;
 
 	printf("\n\n ----- [손영재] [2018038080] -----\n\n");
 
-	do{
+	do {
 		printf("----------------------------------------------------------------\n");
 		printf("                     Doubly Linked  List                        \n");
 		printf("----------------------------------------------------------------\n");
@@ -73,7 +73,7 @@ int main()
 		printf("Command = ");
 		scanf(" %c", &command);
 
-		switch(command) {
+		switch (command) {
 		case 'z': case 'Z': // 사용자가 리스트 초기화를 선택했을 경우
 			initialize(&headnode); // headnode로 시작하는 리스트에 대한 초기화 함수 호출
 			break;
@@ -117,7 +117,7 @@ int main()
 			break;
 		}
 
-	}while(command != 'q' && command != 'Q'); // 프로그램을 종료할 때까지 반복 실행
+	} while (command != 'q' && command != 'Q'); // 프로그램을 종료할 때까지 반복 실행
 
 	return 1;
 }
@@ -128,36 +128,46 @@ int initialize(headNode** h) {
 	if (*h != NULL) // headNode가 NULL이 아닌 경우 초기화를 먼저 진행해야 하므로
 		freeList(*h); // freeList 함수 호출, 인자로 헤드 포인터 *h 넘겨 할당 메모리 해제
 
-	headNode** temp = (headNode**)malloc(sizeof(headNode)); // 헤드 포인터 temp를 선언, 메모리 할당
-	(*temp)->first = NULL; // 초기화된 상태로 리스트에 노드가 없으므로 temp->first에 NULL을 대입
+	*h = (headNode*)malloc(sizeof(headNode)); // 헤드 포인터 h에 메모리 할당
+	(*h)->first = NULL; // 초기화된 상태로 리스트에 노드가 없으므로 (*h)->first에 NULL을 대입
 	return 1;
 }
 
-int freeList(headNode* h){
+int freeList(headNode* h) {
+
+	listNode* p = h->first; // 노드 포인터 p를 선언해 h->first 대입
+	listNode* temp; // free()함수를 실행하기 위한 임시 포인터 선언
+	while (p != NULL) { // 모든 노드에 대한 공간 할당 해제를 완료할 때까지
+		temp = p; // temp를 p로 설정
+		p = p->rlink; // p를 p->rlink로 설정
+		free(temp); // prev가 가리키는 노드 공간에 대한 할당 해제
+	}
+	free(h); // headNode 뒷부분의 노드 할당 해제 완료 후 headNode도 할당 해제
+
 	return 0;
 }
 
 
 void printList(headNode* h) {
-	int i = 0;
-	listNode* p;
+	int i = 0; // 리스트의 index 값을 나타내는 변수 선언
+	listNode* p; // 리스트 탐색을 위한 노드 포인터 p 선언
 
 	printf("\n---PRINT\n");
 
-	if(h == NULL) {
-		printf("Nothing to print....\n");
+	if (h == NULL) { // 노드가 없는 빈 리스트일 경우
+		printf("Nothing to print....\n"); // 메시지 출력 및 복귀
 		return;
 	}
 
-	p = h->first;
+	p = h->first; // 노드 포인터에 리스트의 헤드 포인터 값 대입
 
-	while(p != NULL) {
-		printf("[ [%d]=%d ] ", i, p->key);
-		p = p->rlink;
-		i++;
+	while (p != NULL) {
+		printf("[ [%d]=%d ] ", i, p->key); // 각 노드의 index와 key 값을 출력
+		p = p->rlink; // 노드 포인터가 기존 노드 우측 노드를 가리키게 함
+		i++; // index 값 증가
 	}
 
-	printf("  items = %d\n", i);
+	printf("  items = %d\n", i); // 총 노드의 개수, 즉 index 값을 출력
 }
 
 
@@ -178,12 +188,12 @@ int insertLast(headNode* h, int key) {
 		node->llink = h; // 새롭게 첫 번째로 된 노드의 llink를 헤드 포인터를 가리키게 함
 		return 0;
 	}
-// 기존 리스트에 노드가 있는 경우
+	// 기존 리스트에 노드가 있는 경우
 	listNode* listPoint; // 마지막 노드를 가리키는 포인터인 listPoint 선언
 	for (listPoint = h->first; (listPoint->rlink) != NULL; )
 		listPoint = listPoint->rlink; // for문을 통해 listPoint가 리스트의 마지막 노드를 가리킴
 
-	
+
 	listPoint->rlink = node; // listPoint가 가리키는 리스트의 마지막 노드의 rlink를 새로 추가하는 node로 설정
 	node->llink = listPoint; // 새로 추가하는 마지막 node의 llink를 좌측 노드 포인터인 listPoint로 설정
 	node->rlink = NULL; // node가 리스트의 새로운 마지막 노드이므로 node->rlink를 NULL로 설정
@@ -210,7 +220,7 @@ int deleteLast(headNode* h) {
 		free(temp); // temp, 즉 첫 번째 노드에 대한 공간 할당을 해제하여 노드 삭제함
 		return 0;
 	}
-// 노드가 2개 이상 있는 경우
+	// 노드가 2개 이상 있는 경우
 
 	listNode* temp; // 마지막 노드 탐색을 위한 노드 포인터 temp 선언
 	for (temp = h->first; ; temp = temp->rlink)
@@ -222,9 +232,6 @@ int deleteLast(headNode* h) {
 			break;
 		}
 	}
-
-
-
 	return 0;
 }
 
@@ -246,7 +253,7 @@ int insertFirst(headNode* h, int key) {
 		node->llink = h; // node의 llink가 헤드 포인터를 가리키게 함
 		return 0;
 	}
-// 기존 리스트에 노드가 존재하는 경우
+	// 기존 리스트에 노드가 존재하는 경우
 	h->first->llink = node; // 기존 첫 번째 노드의 llink를 새로 추가하는 node를 가리키게 하고
 	node->rlink = h->first; // 새로 추가하는 node의 node->rlink가 기존 첫 번째 노드를 가리키게 하고
 	h->first = node; // 헤드 포인터가 가리키는 위치를 추가한 node로 새로 지정
@@ -283,20 +290,22 @@ int deleteFirst(headNode* h) {
 int invertList(headNode* h) {
 
 	listNode* lead = h->first;  // 역순 재배치를 위한 노드 포인터 lead 선언, 첫 번째 노드 가리키게 함
-	listNode* temp = lead; // lead의 이전 노드를 가리키는 포인터 temp 선언
+	listNode* temp = NULL; // lead의 우측 노드를 가리키는 포인터 temp 선언
+	lead->llink = NULL;
 
-	while (lead) // lead가 가리키는 노드의 다음 노드가 있을 때까지 반복
+	while (lead != NULL) // lead가 가리키는 노드의 다음 노드가 있을 때까지 반복
 	{
-		temp = lead; // temp에 lead를 대입하고
-		lead = lead->rlink; // lead는 기존 노드의 오른쪽 노드를 가리키게 함
-		lead -> llink = lead -> rlink; // lead의 llink를 rlink로 바꾸고
-		lead -> rlink = temp; // lead의 rlink를 temp, 즉 lead의 기존 왼쪽 노드를 가리키게 하여 순서 뒤집음
-		if(temp == h->first) // 만약 temp가 기존 첫 번째 노드를 가리킬 경우
-			temp->rlink=NULL; // 첫 번째 노드가 마지막 노드가 되므로 rlink NULL로 설정
-	}
-	h->first = lead; // 순서를 모두 바꾼 후 헤드 포인터가 lead를 가리키게 하여 첫 번째 노드로 함
-	lead->llink = h; // lead 노드의 llink가 헤드 포인터를 가리키게 함
+		temp = lead->rlink; // temp가 기존 lead 노드의 우측 노드를 가리키게 함
+		lead->rlink = lead->llink; // lead의 rlink를 lead의 llink로 대입하여 순서 바꿈
+		lead->llink = temp; // lead의 llink를 기존 우측 노드인 temp를 가리키게 하여 순서 바꿈
+		if (temp == NULL) // 마지막 노드까지 탐색을 완료하였을 때
+		{
+			h->first = lead; // 순서를 모두 바꾼 후 헤드 포인터가 lead를 가리키게 하여 첫 번째 노드로 함
+			lead -> llink = h; // lead 노드의 llink가 헤드 포인터를 가리키게 함
+		}
+		lead = temp; // lead에 기존 우측 노드 포인터인 temp 대입하여 다음 노드 탐색 실행
 
+	}
 	return 0;
 }
 
@@ -309,7 +318,8 @@ int insertNode(headNode* h, int key) {
 	node->key = key; // node의 key를 사용자가 입력한 값으로 설정
 
 
-	listNode* temp = h->first; // 값을 비교하기 위한 노드 포인터 temp 선언
+	listNode* temp = h->first; // 값을 비교하기 위한 노드 포인터 temp, prevtemp 선언
+	listNode* prevtemp = NULL; // 각각 h->first, NULL로 초기화
 
 	if (temp == NULL) // temp가 NULL일때, 즉 리스트에 노드가 존재하지 않는 경우
 	{
@@ -324,9 +334,9 @@ int insertNode(headNode* h, int key) {
 	{
 		for (temp = h->first; ; ) // temp가 리스트의 모든 노드를 한 번씩 가리킬 때까지 반복
 		{
-			if (key <(temp->key)) // 사용자가 추가하고자 하는 노드 key값 보다 큰 key를 가진 기존 노드를 발견한 경우
+			if (key < (temp->key)) // 사용자가 추가하고자 하는 노드 key값 보다 큰 key를 가진 기존 노드를 발견한 경우
 			{
-				if (h->first->rlink == NULL) // h->first->rlink가 NULL, 즉 기존 노드가 1개 있는 경우
+				if (prevtemp == NULL) // h->first->rlink가 NULL, 즉 기존 노드가 1개 있는 경우
 				{
 					h->first = node; // 새로 추가하는 node를 기존 노드보다 앞선 위치에 추가해야 하므로
 					node->rlink = temp; // 헤드 포인터가 node를 가리키게 하고 node->rlink가 기존 노드를 가리키게 함
@@ -336,9 +346,10 @@ int insertNode(headNode* h, int key) {
 				}
 				else
 				{ // 기존 노드가 2개 이상 있는 경우
+
 					node->rlink = temp;  // 새로 추가하는 node->rlink를 값이 큰 뒤쪽 노드를 가리키게 하고
-					temp->llink->rlink = node; // 새로 추가하는 node의 좌측 노드의 rlink가 node를 가리키게 하며
 					node->llink = temp->llink; // 새로 추가하는 node의 llink가 좌측 노드를 가리키게 하고
+					temp->llink->rlink = node; // 새로 추가하는 node의 좌측 노드의 rlink가 node를 가리키게 하며
 					temp->llink = node; // 새로 추가하는 node보다 값이 큰 우측 노드의 llink가 node를 가리키게 한다.
 
 					return 0;
@@ -350,14 +361,15 @@ int insertNode(headNode* h, int key) {
 				break; // temp->rlink가 NULL일 때, 즉 모든 노드에 대한 값 탐색을 완료한 경우 for문 탈출
 			}
 
-			temp = temp->rlink; // 하나의 노드에 대한 탐색을 완료한 경우 temp가 가리키는 노드 + 1
-		
+			prevtemp = temp; // 하나의 노드에 대한 탐색을 완료한 경우
+			temp = temp->rlink; // prevtemp, temp가 가리키는 노드 + 1
+
 		}
-		
+
 
 		if ((temp->rlink) == NULL) // 모든 노드에 대한 탐색을 마쳤을 때 입력한 key보다 큰값 가지는 node 없는 경우
 		{
-//			printf("입력한 key보다 큰값을 가지는 노드가 없어 마지막 노드로 추가합니다.\n");
+			//			printf("입력한 key보다 큰값을 가지는 노드가 없어 마지막 노드로 추가합니다.\n");
 			temp->rlink = node; // temp가 가리키는 리스트의 마지막 노드의 rlink를 새로 추가하는 node로 설정
 			node->llink = temp; // 새로 추가하는 마지막 node의 llink를 좌측 노드인 temp로 설정
 			node->rlink = NULL; // node가 리스트의 새로운 마지막 노드이므로 node->rlink를 NULL로 설정
