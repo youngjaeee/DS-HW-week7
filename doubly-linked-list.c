@@ -235,7 +235,22 @@ int deleteLast(headNode* h) {
  */
 int insertFirst(headNode* h, int key) {
 
-	
+	listNode* node = (listNode*)malloc(sizeof(listNode)); // 추가할 노드에 대한 공간을 할당에 node에 저장
+	node->key = key; // node의 key를 사용자가 입력한 값으로 설정
+
+
+	if (h->first == NULL) // 리스트에 노드가 존재하지 않을 경우
+	{
+		h->first = node; // h->first를 node로 설정하고
+		node->rlink = NULL; // node가 리스트의 마지막 노드이므로 node->link를 NULL로 설정
+		node->llink = h; // node의 llink가 헤드 포인터를 가리키게 함
+		return 0;
+	}
+// 기존 리스트에 노드가 존재하는 경우
+	h->first->llink = node; // 기존 첫 번째 노드의 llink를 새로 추가하는 node를 가리키게 하고
+	node->rlink = h->first; // 새로 추가하는 node의 node->rlink가 기존 첫 번째 노드를 가리키게 하고
+	h->first = node; // 헤드 포인터가 가리키는 위치를 추가한 node로 새로 지정
+	node->llink = h; // node의 llink가 헤드 포인터를 가리키게 함
 
 	return 0;
 }
@@ -266,6 +281,21 @@ int deleteFirst(headNode* h) {
  * 리스트의 링크를 역순으로 재 배치
  */
 int invertList(headNode* h) {
+
+	listNode* lead = h->first;  // 역순 재배치를 위한 노드 포인터 lead 선언, 첫 번째 노드 가리키게 함
+	listNode* temp = lead; // lead의 이전 노드를 가리키는 포인터 temp 선언
+
+	while (lead) // lead가 가리키는 노드의 다음 노드가 있을 때까지 반복
+	{
+		temp = lead; // temp에 lead를 대입하고
+		lead = lead->rlink; // lead는 기존 노드의 오른쪽 노드를 가리키게 함
+		lead -> llink = lead -> rlink; // lead의 llink를 rlink로 바꾸고
+		lead -> rlink = temp; // lead의 rlink를 temp, 즉 lead의 기존 왼쪽 노드를 가리키게 하여 순서 뒤집음
+		if(temp == h->first) // 만약 temp가 기존 첫 번째 노드를 가리킬 경우
+			temp->rlink=NULL; // 첫 번째 노드가 마지막 노드가 되므로 rlink NULL로 설정
+	}
+	h->first = lead; // 순서를 모두 바꾼 후 헤드 포인터가 lead를 가리키게 하여 첫 번째 노드로 함
+	lead->llink = h; // lead 노드의 llink가 헤드 포인터를 가리키게 함
 
 	return 0;
 }
